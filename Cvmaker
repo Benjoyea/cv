@@ -1,0 +1,123 @@
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+
+const CVBuilder = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    summary: "",
+    experience: "",
+    education: "",
+    theme: "basic",
+  });
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handlePayment = () => {
+    window.open("https://paypal.me/mxeci1234", "_blank");
+    setPaymentCompleted(true);
+  };
+
+  const handleDownload = () => {
+    if (!paymentCompleted) {
+      alert("Please complete the payment to download your CV.");
+      return;
+    }
+
+    let content = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nSummary:\n${formData.summary}\n\nExperience:\n${formData.experience}\n\nEducation:\n${formData.education}`;
+
+    if (formData.theme === "detailed") {
+      content = `### Detailed CV ###\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\n---\nProfessional Summary:\n${formData.summary}\n\n---\nWork Experience:\n${formData.experience}\n\n---\nEducation:\n${formData.education}`;
+    }
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "CV.txt";
+    link.click();
+  };
+
+  return (
+    <div className="flex flex-col items-center p-6 min-h-screen bg-gray-50">
+      <h1 className="text-2xl font-bold mb-6">CV Builder</h1>
+      <Card className="w-full max-w-2xl p-4">
+        <CardContent>
+          <div className="grid gap-4">
+            <Input
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <Input
+              name="phone"
+              type="tel"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+            <Textarea
+              name="summary"
+              placeholder="Professional Summary"
+              value={formData.summary}
+              onChange={handleChange}
+            />
+            <Textarea
+              name="experience"
+              placeholder="Work Experience"
+              value={formData.experience}
+              onChange={handleChange}
+            />
+            <Textarea
+              name="education"
+              placeholder="Education"
+              value={formData.education}
+              onChange={handleChange}
+            />
+            <div className="flex flex-col">
+              <label htmlFor="theme" className="mb-2 font-medium">CV Theme</label>
+              <Select
+                name="theme"
+                id="theme"
+                value={formData.theme}
+                onChange={handleChange}
+                className="w-full"
+              >
+                <option value="basic">Basic</option>
+                <option value="detailed">Detailed</option>
+              </Select>
+            </div>
+          </div>
+          {!paymentCompleted && (
+            <Button className="mt-4 w-full bg-blue-500 hover:bg-blue-600" onClick={handlePayment}>
+              Pay $3 to Download
+            </Button>
+          )}
+          {paymentCompleted && (
+            <Button className="mt-4 w-full bg-green-500 hover:bg-green-600" onClick={handleDownload}>
+              Download CV
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default CVBuilder;
